@@ -1,19 +1,20 @@
 package frc.t4069.robots.commands;
 
+import java.util.Date;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.t4069.utils.GameController;
 import frc.t4069.utils.math.Point;
 
 public class DriveWithGameController extends Command {
 
+	private boolean XButtonVal = false;
 	private boolean lastXButtonVal = false;
-	private double timeCount = 0;
 	private static final double killTimeSpin = 300;
 	private double timeRunning = 0;
-
-
+	private double startTime = 0;
 
 	public DriveWithGameController() {
 
@@ -35,27 +36,40 @@ public class DriveWithGameController extends Command {
 		processSpin(gc, ds);
 		processShoot(gc);
 
+		SmartDashboard.putDouble("Speed", CommandBase.pickupArm.testspeed);
 
 	}
 
 	protected void processSpin(GameController gc, DriverStation ds) {
-		if (gc.getButton(GameController.BTN_X) && timeCount != 5)
-			timeCount++;
-		else if (!gc.getButton(GameController.BTN_X)
-				&& timeCount != 0) timeCount--;
-		if (gc.getButton(GameController.BTN_X) && timeCount == 3) {
-			lastXButtonVal = !lastXButtonVal;
+		if (lastXButtonVal && !gc.getButton(GameController.BTN_X)) {
+			XButtonVal = !XButtonVal;
+			if (XButtonVal) {
+				startTime = new Date().getTime();
+			}
 		}
-		if (lastXButtonVal && timeRunning < killTimeSpin) {
-			timeRunning++;
-			CommandBase.pickupArm.runRoller(ds.getAnalogIn(1) / 5.0);
-		} else if (timeRunning > killTimeSpin) {
-			timeRunning--;
-			lastXButtonVal = false;
+
+		if (startTime - timeRunning > killTimeSpin) {
+			XButtonVal = !XButtonVal;
+		}
+
+		if (XButtonVal) {
+			timeRunning = new Date().getTime();
+			CommandBase.pickupArm.runRoller(1);
 		} else {
-			timeRunning--;
 			CommandBase.pickupArm.runRoller(0);
 		}
+		lastXButtonVal = gc.getButton(GameController.BTN_X);
+		/*
+		 * if (gc.getButton(GameController.BTN_X) && timeCount != 5)
+		 * timeCount++; else if (!gc.getButton(GameController.BTN_X) &&
+		 * timeCount != 0) timeCount--; if (gc.getButton(GameController.BTN_X)
+		 * && timeCount == 3) { lastXButtonVal = !lastXButtonVal; } if
+		 * (lastXButtonVal && timeRunning < killTimeSpin) { timeRunning++;
+		 * CommandBase.pickupArm.runRoller(ds.getAnalogIn(1) / 5.0); } else if
+		 * (timeRunning > killTimeSpin) { timeRunning--; lastXButtonVal = false;
+		 * } else { timeRunning--; CommandBase.pickupArm.runRoller(0); }
+		 */
+
 	}
 
 	protected void processShoot(GameController gc) {
@@ -64,20 +78,23 @@ public class DriveWithGameController extends Command {
 	}
 
 	protected void processArm(GameController gc) {
-		if (gc.getButton(GameController.BTN_Y))
+		if (gc.getButton(GameController.BTN_Y)) {
 			CommandBase.pickupArm.forward();
-		else if (gc.getButton(GameController.BTN_A))
+		} else if (gc.getButton(GameController.BTN_A)) {
 			CommandBase.pickupArm.reverse();
-		else CommandBase.pickupArm.stop();
+		} else {
+			CommandBase.pickupArm.stop();
+		}
 	}
 
-	protected void processDriveTrain(GameController gc,
-			double turnSensitivity) {
+	protected void processDriveTrain(GameController gc, double turnSensitivity) {
 		if (gc.getButton(GameController.BTN_RB)
-				|| gc.getButton(GameController.BTN_LB))
+				|| gc.getButton(GameController.BTN_LB)) {
 			CommandBase.drivetrain.hardBreak();
-		else CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
-				gc.getLeftStick().x * turnSensitivity);
+		} else {
+			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
+					gc.getLeftStick().x * turnSensitivity);
+		}
 	}
 
 	protected void processCamera(GameController gc) {
