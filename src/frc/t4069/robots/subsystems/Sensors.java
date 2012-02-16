@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Gyro;
 import frc.t4069.robots.RobotMap;
+import frc.t4069.utils.Logger;
 import frc.t4069.utils.MaxbotixSonar;
 import frc.t4069.utils.math.Point3D;
 
@@ -22,16 +23,14 @@ public class Sensors {
 				RobotMap.PHOTO_CHANNEL_2, RobotMap.PHOTO_CHANNEL_3);
 	}
 
-	public Sensors(int accelerometerSlot, int gyroChannel,
-			int sonarChannel, int photoChannel1, int photoChannel2,
-			int photoChannel3) {
+	public Sensors(int accelerometerSlot, int gyroChannel, int sonarChannel,
+			int photoChannel1, int photoChannel2, int photoChannel3) {
 		gyroscopeChannel = new AnalogChannel(gyroChannel);
 		accelerometer = new ADXL345_I2C(accelerometerSlot,
 				ADXL345_I2C.DataFormat_Range.k2G);
 		gyroscope = new Gyro(gyroscopeChannel);
 		sonar = new MaxbotixSonar(sonarChannel);
-		DigitalInput[] photoSensors = {
-				new DigitalInput(photoChannel1),
+		DigitalInput[] photoSensors = { new DigitalInput(photoChannel1),
 				new DigitalInput(photoChannel2),
 				new DigitalInput(photoChannel3) };
 		this.photoSensors = photoSensors;
@@ -58,6 +57,11 @@ public class Sensors {
 	}
 
 	public boolean[] getPhotoSensors() {
+		if (photoSensors[1].get()) {
+			Logger.d("Sensor 1 is on.");
+		} else {
+			Logger.d("Sensor 1 is off.");
+		}
 		boolean[] returnVal = new boolean[3];
 		for (int i = 0; i < photoSensors.length; i++) {
 			returnVal[i] = photoSensors[i].get();
