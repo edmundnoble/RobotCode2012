@@ -13,6 +13,9 @@ public class RobotMap {
 	public static final int GYRO_CHANNEL = 1;
 	public static final int ACCELEROMETER_CHANNEL = 1;
 	public static final int SONAR_CHANNEL = 3;
+	public static final int PHOTO_CHANNEL_1 = 1;
+	public static final int PHOTO_CHANNEL_2 = 2;
+	public static final int PHOTO_CHANNEL_3 = 3;
 
 	public static final int PICKUP_ARM_MOTOR_1 = 7;
 	public static final int PICKUP_ARM_MOTOR_2 = 8;
@@ -22,4 +25,5 @@ public class RobotMap {
 
 	public static final int BANNED_CHANNEL = 6;
 	private static final PWM BANNED_PWM = new PWM(BANNED_CHANNEL);
+
 }

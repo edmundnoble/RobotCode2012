@@ -20,7 +20,7 @@ public class DriveWithGameController extends Command {
 
 	}
 
-	protected void initialize() {
+	protected void end() {
 		// TODO Auto-generated method stub
 
 	}
@@ -36,11 +36,72 @@ public class DriveWithGameController extends Command {
 		processSpin(gc, ds);
 		processShoot(gc);
 
-		SmartDashboard.putDouble("Speed", CommandBase.pickupArm.testspeed);
+		SmartDashboard.putDouble("Speed",
+				CommandBase.pickupArm.testspeed);
 
 	}
 
+	protected void initialize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void interrupted() {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected boolean isFinished() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	protected void processArm(GameController gc) {
+		if (gc.getButton(GameController.BTN_Y)) {
+			CommandBase.pickupArm.forward();
+		} else if (gc.getButton(GameController.BTN_A)) {
+			CommandBase.pickupArm.reverse();
+		} else {
+			CommandBase.pickupArm.stop();
+		}
+	}
+
+	protected void processCamera(GameController gc) {
+		Point rightStick = gc.getRightStick();
+		double y = (rightStick.y + 1) / 4.0 + 0.25;
+		double x = (rightStick.x + 1) / 2.0;
+		CommandBase.cameraMount.setTilt(y);
+		CommandBase.cameraMount.setPan(x);
+	}
+
+	protected void processDriveTrain(GameController gc,
+			double turnSensitivity) {
+		if (gc.getButton(GameController.BTN_RB)
+				|| gc.getButton(GameController.BTN_LB)) {
+			CommandBase.drivetrain.hardBreak();
+		} else {
+			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
+					gc.getLeftStick().x * turnSensitivity);
+		}
+	}
+
+	protected void processShoot(GameController gc) {
+		Point leftStick = gc.getLeftStick();
+		CommandBase.shootSystem.shoot(Math.abs(leftStick.y));
+	}
+
 	protected void processSpin(GameController gc, DriverStation ds) {
+		boolean[] sensorOuts = new boolean[3];
+		for (int i = 0; i < 2; i++) {
+			sensorOuts[i] = CommandBase.sensors.getPhotoSensor(i + 1);
+		}
+		if (Boolean.TRUE) { // TODO: add conditions
+			toggleSpin(gc);
+		}
+
+	}
+
+	private void toggleSpin(GameController gc) {
 		if (lastXButtonVal && !gc.getButton(GameController.BTN_X)) {
 			XButtonVal = !XButtonVal;
 			if (XButtonVal) {
@@ -59,65 +120,6 @@ public class DriveWithGameController extends Command {
 			CommandBase.pickupArm.runRoller(0);
 		}
 		lastXButtonVal = gc.getButton(GameController.BTN_X);
-		/*
-		 * if (gc.getButton(GameController.BTN_X) && timeCount != 5)
-		 * timeCount++; else if (!gc.getButton(GameController.BTN_X) &&
-		 * timeCount != 0) timeCount--; if (gc.getButton(GameController.BTN_X)
-		 * && timeCount == 3) { lastXButtonVal = !lastXButtonVal; } if
-		 * (lastXButtonVal && timeRunning < killTimeSpin) { timeRunning++;
-		 * CommandBase.pickupArm.runRoller(ds.getAnalogIn(1) / 5.0); } else if
-		 * (timeRunning > killTimeSpin) { timeRunning--; lastXButtonVal = false;
-		 * } else { timeRunning--; CommandBase.pickupArm.runRoller(0); }
-		 */
-
-	}
-
-	protected void processShoot(GameController gc) {
-		Point leftStick = gc.getLeftStick();
-		CommandBase.shootSystem.shoot(Math.abs(leftStick.y));
-	}
-
-	protected void processArm(GameController gc) {
-		if (gc.getButton(GameController.BTN_Y)) {
-			CommandBase.pickupArm.forward();
-		} else if (gc.getButton(GameController.BTN_A)) {
-			CommandBase.pickupArm.reverse();
-		} else {
-			CommandBase.pickupArm.stop();
-		}
-	}
-
-	protected void processDriveTrain(GameController gc, double turnSensitivity) {
-		if (gc.getButton(GameController.BTN_RB)
-				|| gc.getButton(GameController.BTN_LB)) {
-			CommandBase.drivetrain.hardBreak();
-		} else {
-			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
-					gc.getLeftStick().x * turnSensitivity);
-		}
-	}
-
-	protected void processCamera(GameController gc) {
-		Point rightStick = gc.getRightStick();
-		double y = (rightStick.y + 1) / 4.0 + 0.25;
-		double x = (rightStick.x + 1) / 2.0;
-		CommandBase.cameraMount.setTilt(y);
-		CommandBase.cameraMount.setPan(x);
-	}
-
-	protected void interrupted() {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected boolean isFinished() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	protected void end() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

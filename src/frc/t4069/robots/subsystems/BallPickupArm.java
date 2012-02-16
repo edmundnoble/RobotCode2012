@@ -16,20 +16,16 @@ public class BallPickupArm {
 	private static final int RC = 250;
 
 	public BallPickupArm() {
-		this(RobotMap.PICKUP_ARM_MOTOR_1, RobotMap.PICKUP_ARM_MOTOR_2,
+		this(RobotMap.PICKUP_ARM_MOTOR_1,
+				RobotMap.PICKUP_ARM_MOTOR_2,
 				RobotMap.PICKUP_SPIN_MOTOR);
 	}
 
-	public BallPickupArm(int motor1channel, int motor2channel, int rollerchannel) {
+	public BallPickupArm(int motor1channel, int motor2channel,
+			int rollerchannel) {
 		m_motor1 = new Victor(motor1channel);
 		m_motor2 = new Victor(motor2channel);
 		m_roller = new Victor(rollerchannel);
-	}
-
-	public void runRoller(double speed) {
-		speed = m_rollerLPF.calculate(speed);
-		m_roller.set(speed);
-		testspeed = speed;
 	}
 
 	public void forward() {
@@ -49,6 +45,13 @@ public class BallPickupArm {
 		speed = m_armLPF.calculate(-speed);
 		m_motor1.set(speed);
 		m_motor2.set(speed);
+	}
+
+	public void runRoller(double speed) {
+
+		speed = m_rollerLPF.calculate(speed);
+		m_roller.set(speed);
+		testspeed = speed;
 	}
 
 	public void stop() {
