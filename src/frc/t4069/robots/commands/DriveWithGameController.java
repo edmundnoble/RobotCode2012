@@ -15,6 +15,8 @@ public class DriveWithGameController extends Command {
 	private static final double killTimeSpin = 300;
 	private double timeRunning = 0;
 	private double startTime = 0;
+	private long[] lastSensors = new long[3];
+	private boolean[] falseConds, trueConds;
 
 	public DriveWithGameController() {
 
@@ -91,14 +93,23 @@ public class DriveWithGameController extends Command {
 	}
 
 	protected void processSpin(GameController gc, DriverStation ds) {
-		boolean[] sensorOuts = new boolean[3];
-		for (int i = 0; i < 2; i++) {
-			sensorOuts[i] = CommandBase.sensors.getPhotoSensor(i + 1);
+		boolean[] sensorOuts = CommandBase.sensors.getPhotoSensors();
+		long currentTime = new Date().getTime();
+		for (int i = 0; i < sensorOuts.length; i++) {
+			if (sensorOuts[i]) {
+				lastSensors[i] = (new Date().getTime() - currentTime) / 100;
+			}
 		}
-		if (Boolean.TRUE) { // TODO: add conditions
+		if (spinCheck(lastSensors)) { // TODO: add conditions
 			toggleSpin(gc);
 		}
 
+	}
+
+	private boolean spinCheck(long sensorTimes[]) {
+		falseConds[0] = sensorTimes[1] < 10 && sensorTimes[2] < 20;
+		falseConds[1] = sensorTimes[2] < 20 && sensorTimes[3] < 20;
+		return true;
 	}
 
 	private void toggleSpin(GameController gc) {

@@ -57,7 +57,11 @@ public class Sensors {
 		return sonar.getDistance(inch);
 	}
 
-	public boolean getPhotoSensor(int sensorNum) {
-		return photoSensors[sensorNum].get();
+	public boolean[] getPhotoSensors() {
+		boolean[] returnVal = new boolean[3];
+		for (int i = 0; i < photoSensors.length; i++) {
+			returnVal[i] = photoSensors[i].get();
+		}
+		return returnVal;
 	}
 }
