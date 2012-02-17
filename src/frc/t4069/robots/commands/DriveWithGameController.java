@@ -15,7 +15,8 @@ public class DriveWithGameController extends Command {
 	private static final double killTimeSpin = 300;
 	private double timeRunning = 0;
 	private double startTime = 0;
-	private long[] sensorTimes, lastSensorTimes = new long[3];
+	private long[] sensorTimes = new long[3],
+			lastSensorTimes = new long[3];
 
 	public DriveWithGameController() {
 
@@ -37,7 +38,8 @@ public class DriveWithGameController extends Command {
 		processSpin(gc, ds);
 		processShoot(gc);
 
-		SmartDashboard.putDouble("Speed", CommandBase.pickupArm.testspeed);
+		SmartDashboard.putDouble("Speed",
+				CommandBase.pickupArm.testspeed);
 
 	}
 
@@ -74,13 +76,14 @@ public class DriveWithGameController extends Command {
 		CommandBase.cameraMount.setPan(x);
 	}
 
-	protected void processDriveTrain(GameController gc, double turnSensitivity) {
+	protected void processDriveTrain(GameController gc,
+			double turnSensitivity) {
 		if (gc.getButton(GameController.BTN_RB)
 				|| gc.getButton(GameController.BTN_LB)) {
 			CommandBase.drivetrain.hardBreak();
 		} else {
-			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(), gc.getLeftStick().x
-					* turnSensitivity);
+			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
+					gc.getLeftStick().x * turnSensitivity);
 		}
 	}
 
@@ -95,23 +98,29 @@ public class DriveWithGameController extends Command {
 		for (int i = 0; i < sensorOuts.length; i++) {
 			lastSensorTimes[i] = sensorTimes[i];
 			if (sensorOuts[i]) {
-				sensorTimes[i] = currentTime / 100;
+				sensorTimes[i] = currentTime;
 			}
+			sensorTimes[i] = currentTime - sensorTimes[i];
 		}
-		if (spinCheck(sensorTimes, lastSensorTimes)) { // TODO: add conditions
+		if (spinCheck(sensorTimes, lastSensorTimes, currentTime)) {
 			toggleSpin(gc);
 		}
 	}
 
-	private boolean spinCheck(long[] sensorTimes, long[] lastSensorTimes) {
+	private boolean spinCheck(long[] sensorTimes,
+			long[] lastSensorTimes, long currentTime) { // TODO: add conditions
+														// for spinning
 		boolean[] falseConds = {
-						sensorTimes[1] < 10 && sensorTimes[2] < 20,
-						sensorTimes[2] < 20 && sensorTimes[3] < 20,
-						sensorTimes[1] < lastSensorTimes[1] + 100 };
+				sensorTimes[1] < 100 && sensorTimes[2] < 200,
+				sensorTimes[2] < 200 && sensorTimes[3] < 200,
+				sensorTimes[1] < lastSensorTimes[1] + 1000,
+				sensorTimes[3] == currentTime / 1000
+						&& sensorTimes[2] < currentTime / 980,
+				sensorTimes[1] > sensorTimes[2]
+						&& sensorTimes[2] > currentTime / 980 };
 		for (int i = 0; i < falseConds.length; i++) {
-			if (falseConds[i]) {
+			if (falseConds[i])
 				return false;
-			}
 		}
 		return true;
 	}
