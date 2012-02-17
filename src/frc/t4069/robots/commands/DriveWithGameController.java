@@ -108,8 +108,8 @@ public class DriveWithGameController extends Command {
 						sensorTimes[1] < 10 && sensorTimes[2] < 20,
 						sensorTimes[2] < 20 && sensorTimes[3] < 20,
 						sensorTimes[1] < lastSensorTimes[1] + 100 };
-		for (boolean falseCond : falseConds) {
-			if (falseCond) {
+		for (int i = 0; i < falseConds.length; i++) {
+			if (falseConds[i]) {
 				return false;
 			}
 		}
