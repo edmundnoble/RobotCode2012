@@ -15,8 +15,7 @@ public class DriveWithGameController extends Command {
 	private static final double killTimeSpin = 300;
 	private double timeRunning = 0;
 	private double startTime = 0;
-	private long[] sensorTimes = new long[3],
-			lastSensorTimes = new long[3];
+	private long[] sensorTimes = new long[3], lastSensorTimes = new long[3];
 
 	public DriveWithGameController() {
 
@@ -37,9 +36,11 @@ public class DriveWithGameController extends Command {
 		processArm(gc);
 		processSpin(gc, ds);
 		processShoot(gc);
-
-		SmartDashboard.putDouble("Speed",
-				CommandBase.pickupArm.testspeed);
+		boolean[] sensorVals = CommandBase.sensors.getPhotoSensors();
+		for (int i = 0; i < sensorVals.length; i++) {
+			SmartDashboard.putBoolean("Photosensor " + (i + 1), sensorVals[i]);
+		}
+		SmartDashboard.putDouble("Speed", CommandBase.pickupArm.testspeed);
 
 	}
 
@@ -76,14 +77,13 @@ public class DriveWithGameController extends Command {
 		CommandBase.cameraMount.setPan(x);
 	}
 
-	protected void processDriveTrain(GameController gc,
-			double turnSensitivity) {
+	protected void processDriveTrain(GameController gc, double turnSensitivity) {
 		if (gc.getButton(GameController.BTN_RB)
 				|| gc.getButton(GameController.BTN_LB)) {
 			CommandBase.drivetrain.hardBreak();
 		} else {
-			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
-					gc.getLeftStick().x * turnSensitivity);
+			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(), gc.getLeftStick().x
+					* turnSensitivity);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class DriveWithGameController extends Command {
 	protected void processSpin(GameController gc, DriverStation ds) {
 		boolean[] sensorOuts = CommandBase.sensors.getPhotoSensors();
 		long currentTime = new Date().getTime();
-		for (int i = 0; i < sensorOuts.length; i++) {
+		for (int i = 0; i < sensorOuts.length - 1; i++) {
 			lastSensorTimes[i] = sensorTimes[i];
 			if (sensorOuts[i]) {
 				sensorTimes[i] = currentTime;
@@ -107,20 +107,20 @@ public class DriveWithGameController extends Command {
 		}
 	}
 
-	private boolean spinCheck(long[] sensorTimes,
-			long[] lastSensorTimes, long currentTime) { // TODO: add conditions
-														// for spinning
+	private boolean spinCheck(long[] sensorTimes, long[] lastSensorTimes,
+			long currentTime) {
 		boolean[] falseConds = {
-				sensorTimes[1] < 100 && sensorTimes[2] < 200,
-				sensorTimes[2] < 200 && sensorTimes[3] < 200,
-				sensorTimes[1] < lastSensorTimes[1] + 1000,
-				sensorTimes[3] == currentTime / 1000
-						&& sensorTimes[2] < currentTime / 980,
-				sensorTimes[1] > sensorTimes[2]
-						&& sensorTimes[2] > currentTime / 980 };
-		for (int i = 0; i < falseConds.length; i++) {
-			if (falseConds[i])
+						sensorTimes[0] < 100 && sensorTimes[1] < 200,
+						sensorTimes[1] < 200 && sensorTimes[2] < 200,
+						sensorTimes[0] < lastSensorTimes[0] + 1000,
+						sensorTimes[2] == currentTime / 1000
+								&& sensorTimes[1] < currentTime / 980,
+						sensorTimes[0] > sensorTimes[1]
+								&& sensorTimes[1] > currentTime / 980 };
+		for (int i = 0; i < falseConds.length - 1; i++) {
+			if (falseConds[i]) {
 				return false;
+			}
 		}
 		return true;
 	}
