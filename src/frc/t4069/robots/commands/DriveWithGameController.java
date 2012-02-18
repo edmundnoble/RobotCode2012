@@ -10,12 +10,12 @@ import frc.t4069.utils.math.Point;
 
 public class DriveWithGameController extends Command {
 
-	private boolean XButtonVal = false;
-	private boolean lastXButtonVal = false;
+	private boolean XButtonVal = false, lastXButtonVal = false;
 	private static final double killTimeSpin = 300;
 	private double timeRunning = 0;
 	private double startTime = 0;
-	private long[] sensorTimes = new long[3], lastSensorTimes = new long[3];
+	private long[] sensorTimes = new long[3],
+			lastSensorTimes = new long[3];
 
 	public DriveWithGameController() {
 
@@ -38,9 +38,11 @@ public class DriveWithGameController extends Command {
 		processShoot(gc);
 		boolean[] sensorVals = CommandBase.sensors.getPhotoSensors();
 		for (int i = 0; i < sensorVals.length; i++) {
-			SmartDashboard.putBoolean("Photosensor " + (i + 1), sensorVals[i]);
+			SmartDashboard.putBoolean("Photosensor " + (i + 1),
+					sensorVals[i]);
 		}
-		SmartDashboard.putDouble("Speed", CommandBase.pickupArm.testspeed);
+		SmartDashboard.putDouble("Speed",
+				CommandBase.pickupArm.testspeed);
 
 	}
 
@@ -77,13 +79,14 @@ public class DriveWithGameController extends Command {
 		CommandBase.cameraMount.setPan(x);
 	}
 
-	protected void processDriveTrain(GameController gc, double turnSensitivity) {
+	protected void processDriveTrain(GameController gc,
+			double turnSensitivity) {
 		if (gc.getButton(GameController.BTN_RB)
 				|| gc.getButton(GameController.BTN_LB)) {
 			CommandBase.drivetrain.hardBreak();
 		} else {
-			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(), gc.getLeftStick().x
-					* turnSensitivity);
+			CommandBase.drivetrain.arcadeDrive(gc.getTrigger(),
+					gc.getLeftStick().x * turnSensitivity);
 		}
 	}
 
@@ -102,48 +105,49 @@ public class DriveWithGameController extends Command {
 			}
 			sensorTimes[i] = currentTime - sensorTimes[i];
 		}
-		if (spinCheck(sensorTimes, lastSensorTimes, currentTime)) {
-			toggleSpin(gc);
-		}
+		toggleSpin(gc,
+				spinCheck(sensorTimes, lastSensorTimes, currentTime));
+
 	}
 
-	private boolean spinCheck(long[] sensorTimes, long[] lastSensorTimes,
-			long currentTime) {
+	private boolean spinCheck(long[] sensorTimes,
+			long[] lastSensorTimes, long currentTime) {
 		boolean[] falseConds = {
-						sensorTimes[0] < 100 && sensorTimes[1] < 200,
-						sensorTimes[1] < 200 && sensorTimes[2] < 200,
-						sensorTimes[0] < lastSensorTimes[0] + 1000,
-						sensorTimes[2] == currentTime / 1000
-								&& sensorTimes[1] < currentTime / 980,
-						sensorTimes[0] > sensorTimes[1]
-								&& sensorTimes[1] > currentTime / 980 };
+				sensorTimes[0] < 100 && sensorTimes[1] < 200,
+				sensorTimes[1] < 200 && sensorTimes[2] < 200,
+				sensorTimes[0] > lastSensorTimes[0] - 1000,
+				sensorTimes[2] == currentTime
+						&& sensorTimes[1] < currentTime / 9,
+				sensorTimes[0] > sensorTimes[1]
+						&& sensorTimes[1] > currentTime / 9 };
 		for (int i = 0; i < falseConds.length - 1; i++) {
-			if (falseConds[i]) {
+			if (falseConds[i])
 				return false;
-			}
 		}
 		return true;
 	}
 
-	private void toggleSpin(GameController gc) {
+	private void toggleSpin(GameController gc, boolean run) {
 		if (lastXButtonVal && !gc.getButton(GameController.BTN_X)) {
 			XButtonVal = !XButtonVal;
 			if (XButtonVal) {
 				startTime = new Date().getTime();
 			}
 		}
-
 		if (startTime - timeRunning > killTimeSpin) {
 			XButtonVal = !XButtonVal;
 		}
+		if (!run) {
+			XButtonVal = false;
 
-		if (XButtonVal) {
-			timeRunning = new Date().getTime();
-			CommandBase.pickupArm.runRoller(1);
-		} else {
-			CommandBase.pickupArm.runRoller(0);
+			if (XButtonVal) {
+				timeRunning = new Date().getTime();
+				CommandBase.pickupArm.runRoller(1);
+			} else {
+				CommandBase.pickupArm.runRoller(0);
+			}
+			lastXButtonVal = gc.getButton(GameController.BTN_X);
 		}
-		lastXButtonVal = gc.getButton(GameController.BTN_X);
-	}
 
+	}
 }
